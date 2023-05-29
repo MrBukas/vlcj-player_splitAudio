@@ -82,6 +82,7 @@ import java.util.prefs.Preferences;
 import static uk.co.caprica.vlcjplayer.Application.application;
 import static uk.co.caprica.vlcjplayer.Application.resources;
 import static uk.co.caprica.vlcjplayer.view.action.Resource.resource;
+import static uk.co.caprica.vlcjplayer.server.EventServerPublisher.eventPublisher;
 
 @SuppressWarnings("serial")
 public final class MainFrame extends BaseFrame {
@@ -126,6 +127,10 @@ public final class MainFrame extends BaseFrame {
     private final JMenu audioDeviceMenu;
     private final JMenu audioStereoMenu;
 
+    private final JMenu audioMenu2;
+    private final JMenu audioTrackMenu2;
+    private final JMenu audioDeviceMenu2;
+
     private final JMenu videoMenu;
     private final JMenu videoTrackMenu;
     private final JMenu videoZoomMenu;
@@ -158,8 +163,12 @@ public final class MainFrame extends BaseFrame {
 
     private final List<RendererItem> renderers = new ArrayList<>();
 
+    private static boolean isListener() {
+        return System.getenv("isMain").equals("0");
+    }
+
     public MainFrame() {
-        super("vlcj player");
+        super(isListener() ? "audio instance" : "vlcj player");
 
         MediaPlayerActions mediaPlayerActions = application().mediaPlayerActions();
 
@@ -355,6 +364,15 @@ public final class MainFrame extends BaseFrame {
         }
         menuBar.add(audioMenu);
 
+        audioMenu2 = new JMenu("Second Audio");
+
+        audioTrackMenu2 = new AudioTrackMenu().menu();
+
+        audioMenu2.add(audioTrackMenu2);
+        audioDeviceMenu2 = new AudioDeviceMenu().menu();
+        audioMenu2.add(audioDeviceMenu2);
+        menuBar.add(audioMenu2);
+
         videoMenu = new JMenu(resource("menu.video").name());
         videoMenu.setMnemonic(resource("menu.video").mnemonic());
 
@@ -467,6 +485,7 @@ public final class MainFrame extends BaseFrame {
                     public void run() {
                         videoContentPane.showVideo();
 //                        mouseMovementDetector.start();
+//                        eventPublisher().publishPlayEvent();
                         application().post(PlayingEvent.INSTANCE);
                     }
                 });
@@ -478,6 +497,7 @@ public final class MainFrame extends BaseFrame {
                     @Override
                     public void run() {
 //                        mouseMovementDetector.stop();
+//                        eventPublisher().publishPauseEvent();
                         application().post(PausedEvent.INSTANCE);
                     }
                 });
@@ -490,6 +510,7 @@ public final class MainFrame extends BaseFrame {
                     public void run() {
 //                        mouseMovementDetector.stop();
                         videoContentPane.showDefault();
+//                        eventPublisher().publishStopEvent();
                         application().post(StoppedEvent.INSTANCE);
                     }
                 });

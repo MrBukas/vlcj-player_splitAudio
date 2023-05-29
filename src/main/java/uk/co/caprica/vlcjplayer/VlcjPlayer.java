@@ -31,6 +31,7 @@ import uk.co.caprica.vlcj.support.Info;
 import uk.co.caprica.vlcjplayer.event.RendererAddedEvent;
 import uk.co.caprica.vlcjplayer.event.RendererDeletedEvent;
 import uk.co.caprica.vlcjplayer.event.ShutdownEvent;
+import uk.co.caprica.vlcjplayer.server.EventServerListener;
 import uk.co.caprica.vlcjplayer.view.debug.DebugFrame;
 import uk.co.caprica.vlcjplayer.view.effects.EffectsFrame;
 import uk.co.caprica.vlcjplayer.view.main.MainFrame;
@@ -40,8 +41,14 @@ import javax.swing.JFrame;
 import javax.swing.UIManager;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import static uk.co.caprica.vlcjplayer.Application.application;
 
@@ -80,7 +87,45 @@ public class VlcjPlayer implements RendererDiscovererEventListener {
 
     private final NativeLog nativeLog;
 
+    private static boolean isListener() {
+        return System.getenv("isMain").equals("0");
+    }
+
     public static void main(String[] args) throws InterruptedException {
+        for (String s : args) {
+            System.out.println(s);
+        }
+
+        if (isListener()) {
+            new Thread(new EventServerListener()).start();
+        }
+
+
+//        if (System.getenv("isMain").equals("0")) {
+//            try (Socket socket = new Socket()) {
+//                socket.connect(new InetSocketAddress(InetAddress.getLocalHost(), 44100));
+//                Scanner scanner = new Scanner(socket.getInputStream());
+//                while (scanner.hasNextLine()) {
+//                    System.out.println(scanner.nextLine());
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        } else if (System.getenv("isMain").equals("1")) {
+//            try (ServerSocket serverSocket = new ServerSocket(44100);
+//                 Socket socket = serverSocket.accept()
+//            ) {
+//                PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true);
+//                System.out.println("Waiting to post");
+//                printWriter.println("Server posts");
+//                System.out.println("Posted");
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+
+
+
         Info info = Info.getInstance();
 
         System.out.printf("vlcj             : %s%n", info.vlcjVersion() != null ? info.vlcjVersion() : "<version not available>");

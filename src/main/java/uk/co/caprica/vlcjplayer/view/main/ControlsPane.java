@@ -153,7 +153,12 @@ final class ControlsPane extends BasePanel {
 
     @Subscribe
     public void onPaused(PausedEvent event) {
-        playPauseButton.setIcon(playIcon); // FIXME best way to do this? should be via the action really?
+        pausePlayback();
+        playPauseButton.setIcon(playIcon);
+    }
+
+    public void pausePlayback(){
+
     }
 
     @Subscribe

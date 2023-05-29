@@ -26,6 +26,7 @@ import uk.co.caprica.vlcj.player.component.callback.ScaledCallbackImagePainter;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 import uk.co.caprica.vlcj.player.renderer.RendererItem;
 import uk.co.caprica.vlcjplayer.event.TickEvent;
+import uk.co.caprica.vlcjplayer.server.ServerUtils;
 import uk.co.caprica.vlcjplayer.view.action.mediaplayer.MediaPlayerActions;
 
 import javax.swing.SwingUtilities;
@@ -37,6 +38,9 @@ import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import static uk.co.caprica.vlcjplayer.server.EventServerPublisher.eventPublisher;
+
 
 /**
  * Global application state.
@@ -103,12 +107,18 @@ public final class Application {
         // Events are always posted and processed on the Swing Event Dispatch thread
         if (SwingUtilities.isEventDispatchThread()) {
             eventBus.post(event);
+            if (ServerUtils.isServer()) {
+                eventPublisher().publishEvent(event);
+            }
         }
         else {
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
                     eventBus.post(event);
+                    if (ServerUtils.isServer()) {
+                        eventPublisher().publishEvent(event);
+                    }
                 }
             });
         }
